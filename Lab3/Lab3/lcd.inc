@@ -1,27 +1,27 @@
-/*
- * lcd.inc
- *
- * This file contains a driver for communicating with a Philips PCD8544
- * LCD controller (48x84 pixels), 6 rows and 14 columns with 8x6 pixel
- * characters. This is the same display that was mounted in a 
- * Nokia 5110 cell phone.
- * This driver is written for a LCD mounted on a "iBridge keypad shield",
- * which is mounted on a Arduino Mega board (ATmega2560).
- * SPI communication with the LCD is implemented by bit-banging the protocol.
- *
- * A character is 6 pixels wide, but only 5 pixels forms the character. The
- * last pixel is used as padding between characters.
- *
- * Created by Mathias Beckius, 25 June 2015, for the course DA346A at
- * Malmo University.
- *
- * Updated: 2019-11-26
- * Updated by Johannes Bl�ml, for the course DA346A at Malmo University.
- */
+; *****************************************************************************
+; lcd.inc
+;
+; This file contains a driver for communicating with a Philips PCD8544
+; LCD controller (48x84 pixels), 6 rows and 14 columns with 8x6 pixel
+; characters. This is the same display that was mounted in a 
+; Nokia 5110 cell phone.
+; This driver is written for a LCD mounted on a "iBridge keypad shield",
+; which is mounted on a Arduino Mega board (ATmega2560).
+; SPI communication with the LCD is implemented by bit-banging the protocol.
+;
+; A character is 6 pixels wide, but only 5 pixels forms the character. The
+; last pixel is used as padding between characters.
+;
+; Created by Mathias Beckius, 25 June 2015, for the course DA346A at
+; Malmo University.
+;
+; Updated: 2019-11-26
+; Updated by Johannes Bl�ml, for the course DA346A at Malmo University.
+; *****************************************************************************
 
-;==============================================================================
+; =============================================================================
 ; Character table, equivalent to a 2 dimensional array, 5 columns per row
-;==============================================================================
+; =============================================================================
 chars:
 	.DB				0x00, 0x00, 0x00, 0x00, 0x00,	/* SPACE */	\
 					0x00, 0x00, 0x5f, 0x00, 0x00,	/* ! */		\
@@ -33,7 +33,7 @@ chars:
 					0x00, 0x05, 0x03, 0x00, 0x00,	/* ' */		\
 					0x00, 0x1c, 0x22, 0x41, 0x00,	/* ( */		\
 					0x00, 0x41, 0x22, 0x1c, 0x00,	/* ) */		\
-					0x14, 0x08, 0x3e, 0x08, 0x14,	/* * */		\
+					0x14, 0x08, 0x3e, 0x08, 0x14,	/* ; */		\
 					0x08, 0x08, 0x3e, 0x08, 0x08,	/* + */		\
 					0x00, 0x50, 0x30, 0x00, 0x00,	/* , */		\
 					0x08, 0x08, 0x08, 0x08, 0x08,	/* - */		\
@@ -84,9 +84,9 @@ chars:
 					0x61, 0x51, 0x49, 0x45, 0x43,	/* Z */		\
 					0x00							/* padding for .DB */
 
-;==============================================================================
+; =============================================================================
 ; Definitions of registers, etc. ("constants")
-;==============================================================================
+; =============================================================================
 	.EQU			CHR_WIDTH    =	5				; Char width (w/o padding)
 	.EQU			ASCII_OFFSET =	32				; First char in 'chars'
 
@@ -100,21 +100,21 @@ chars:
 	.EQU			BIT6_HIGH	 =	0x40
 	.EQU			BIT6_LOW	 =	0xBF
 
-;==============================================================================
+; =============================================================================
 ; Macro for writing a command to the LCD.
 ; Uses registers:
 ;	R24				Command data / parameter to 'lcd_write_byte'
 ;
 ; Example: Write 0x20 to the LCD
 ;	LCD_WRITE_CMD	0x20
-;==============================================================================
+; =============================================================================
 	.MACRO			LCD_WRITE_CMD
 	CBI				PORTB,			4				; clear D/C pin
 	LDI				R24,			@0				; set command as parameter
 	RCALL			lcd_write_byte					; write byte to the LCD
 	.ENDMACRO
 
-;==============================================================================
+; =============================================================================
 ; Macro for writing a character to the LCD.
 ; Uses registers:
 ;	R24				Character / parameter to 'lcd_write_char'
@@ -123,60 +123,60 @@ chars:
 ;	LCD_WRITE_CHR 'A'
 ; Example: Write current character stored in R24
 ;	LCD_WRITE_CHR
-;==============================================================================
+; =============================================================================
 	.MACRO			LCD_WRITE_CHR
 	SBI				PORTB,			4				; set D/C pin
 	LDI				R24,			@0				; set command as parameter
 	RCALL			lcd_write_char					; write char to the LCD
 	.ENDMACRO
 
-;==============================================================================
+; =============================================================================
 ; Macro for writing a string of characters to the LCD.
 ; Uses registers:
 ;	ZH:ZL			High and Low part of Z register, for string pointer
 ;
 ; Example: Write the string 'my_string', stored in program memory
 ;	LCD_WRITE_STR	my_string
-;==============================================================================
+; =============================================================================
 	.MACRO			LCD_WRITE_STR
 	LDI				ZH,				HIGH(@0 << 1)	; Init pointer
 	LDI				ZL,				LOW(@0 << 1)
 	RCALL			lcd_write_string				; Write string to the LCD
 	.ENDMACRO
 
-;==============================================================================
+; =============================================================================
 ; Macro for setting a bit in I/O register, located in the extended I/O space.
 ; Uses registers:
 ;	R24				Store I/O data
 ;
 ; Example: Set bit 6 in PORTH
 ;	SET_IO_BIT		PORTH,			BIT6_HIGH
-;==============================================================================
+; =============================================================================
 	.MACRO			SET_IO_BIT
 	LDS				R24,			@0				; Read reg, store in R24
 	ORI				R24,			@1				; Mask bits, store in R24
 	STS				@0,				R24				; Set register
 	.ENDMACRO
 
-;==============================================================================
+; =============================================================================
 ; Macro for clearing a bit in I/O register, located in the extended I/O space.
 ; Uses registers:
 ;	R24				Store I/O data
 ;
 ; Example: Clear bit 6 in PORTH
 ;	CLR_IO_BIT		PORTH,			BIT6_LOW
-;==============================================================================
+; =============================================================================
 	.MACRO			CLR_IO_BIT
 	LDS				R24,			@0				; Read reg, store in R24
 	ANDI			R24,			@1				; Mask bits, store in R24
 	STS				@0,				R24				; Set register
 	.ENDMACRO
-;==============================================================================
+; =============================================================================
 ; Prints a nul-terminated string to the LCD. 
 ; Uses registers:
 ;	RVAL			Character data to LCD
 ;   ZH:ZL			Pointer into string
-;==============================================================================
+; =============================================================================
 	.MACRO		PRINTSTRING
 	; Initialize Z-pointer
 	LDI			ZH, HIGH(@0<<1)
@@ -184,11 +184,11 @@ chars:
 	; Write String pointed to by @0
 	RCALL		lcd_write_string
 	.ENDMACRO
-;==============================================================================
+; =============================================================================
 ; Initialize the LCD.
 ; Uses registers:
 ;	R24				Used when calling other subroutines.
-;==============================================================================
+; =============================================================================
 lcd_init:
 	; PORT B ---------------------------------------
 	; output:	4, 5 and 6 (LCD command/character, reset, CS/SS)
@@ -217,13 +217,13 @@ lcd_init:
 	LCD_WRITE_CMD	0x0C							; Set display control
 	RET
 
-;==============================================================================
+; =============================================================================
 ; Write a string of characters to the LCD. The string must be nul-terminated.
 ; And the Z-pointer must point to the string.
 ; Uses registers:
 ;	ZH:ZL			String pointer
 ;	RVAL			Used for writing characters
-;==============================================================================
+; =============================================================================
 lcd_write_string:
 	; set D/C pin
 	SBI			PORTB, 4		
@@ -243,7 +243,7 @@ lcd_write_string__done:
 
 	RET
 
-;==============================================================================
+; =============================================================================
 ; Write a character to the LCD.
 ; Uses registers:
 ;	R1:R0			Initial pointer to character data in program memory,
@@ -253,7 +253,7 @@ lcd_write_string__done:
 ;	R17				Character width (without padding)
 ;	R24				Parameter data/char (input to this subroutine)
 ;					also used by 'lcd_write_byte'.
-;==============================================================================
+; =============================================================================
 lcd_write_char:
 	MOV				R16,			R24				; copy char to temp reg
 	SUBI			R16,			ASCII_OFFSET	; subtract ASCII-OFFSET
@@ -277,7 +277,7 @@ lcd_write_char:
 	RCALL			lcd_write_byte					; (padding)
 	RET
 
-;==============================================================================
+; =============================================================================
 ; Write a byte of data to the LCD, start with the most significant bit.
 ; Uses registers:
 ;	R16				Copy of parameter data
@@ -285,7 +285,7 @@ lcd_write_char:
 ;	R18				Counter (number of bits written to LCD)
 ;	R24				Parameter data/byte (input to this subroutine)
 ;					also used by SET_IO_BIT and CLR_IO_BIT macros.
-;==============================================================================
+; =============================================================================
 lcd_write_byte:
 	CBI				PORTB,			6				; Lower CS/SS pin
 	MOV				R16,			R24				; Copy data to temp reg
@@ -311,11 +311,11 @@ write_to_lcd:
 	SBI				PORTB,			6				; Raise CS/SS pin
 	RET												; (normal mode)
 
-;==============================================================================
+; =============================================================================
 ; Clear screen. The display is filled with 84 blank characters.
 ; Uses registers:
 ;	COUNTER		Counter from 84 (the number of characters the LCD can display)
-;==============================================================================
+; =============================================================================
 
 lcd_clear_display:
 	LCD_WRITE_CMD 0x80 ; Set position: col 0
@@ -329,5 +329,3 @@ lcd_clear_display__loop:
 	BRNE		lcd_clear_display__loop
 	
 	RET
-
-
