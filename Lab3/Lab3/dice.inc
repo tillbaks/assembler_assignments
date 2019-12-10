@@ -13,14 +13,14 @@ roll:
 	RCALL		lcd_clear_display
 	PRINTSTRING	STR_ROLLING
     RCALL       roll_dice
-    PUSH        R24
+    PUSH        RVAL
     RCALL		store_stat
-    POP         R24
-	SUBI		R24, -48
-	PUSH        R24
+    POP         RVAL
+	SUBI		RVAL, -48
+	PUSH        RVAL
 	RCALL		lcd_clear_display
 	PRINTSTRING	STR_VALUE
-	POP         R24
+	POP         RVAL
 	SBI			PORTB, 4						; set D/C pin
 	RCALL		lcd_write_char					; write char to the LCD
 	
@@ -28,20 +28,18 @@ roll:
 	RET
 
 roll_dice:
-    LDI         R19, 6
+    LDI         COUNTER, 6
 roll_dice__next:
-    NOP
-    NOP
-    PUSH        R19
+    PUSH        COUNTER
     RCALL       read_keyboard
-    POP         R19
+    POP         COUNTER
     CPI         RVAL, ROLL_KEY
     BRNE        roll_dice__done         ; Roll key is released = done
 
-    DEC         R19
-    BRNE        roll_dice__next         ; R24 is >0 = loop
-    RJMP        roll_dice               ; R24 is 0 = restart from 6
+    DEC         COUNTER
+    BRNE        roll_dice__next         ; RVAL is >0 = loop
+    RJMP        roll_dice               ; RVAL is 0 = restart from 6
 roll_dice__done:
-    MOV         R24, R19
+    MOV         RVAL, COUNTER
     RET
 

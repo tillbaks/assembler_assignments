@@ -172,9 +172,9 @@ chars:
 	STS				@0,				R24				; Set register
 	.ENDMACRO
 ;==============================================================================
-; Prints a string to the LCD
+; Prints a nul-terminated string to the LCD. 
 ; Uses registers:
-;	R24				Character data to LCD
+;	RVAL			Character data to LCD
 ;   ZH:ZL			Pointer into string
 ;==============================================================================
 	.MACRO		PRINTSTRING
@@ -218,19 +218,19 @@ lcd_init:
 	RET
 
 ;==============================================================================
-; Write a string of characters to the LCD.
+; Write a string of characters to the LCD. The string must be nul-terminated.
+; And the Z-pointer must point to the string.
 ; Uses registers:
 ;	ZH:ZL			String pointer
-;	R3:R2			Temporary storage of string pointer
-;	R24				Used for writing characters
+;	RVAL			Used for writing characters
 ;==============================================================================
 lcd_write_string:
 	; set D/C pin
 	SBI			PORTB, 4		
 lcd_write_string__loop:
-	LPM			R24, Z+
+	LPM			RVAL, Z+
 	; Check if at end of string
-	CPI			R24, 0
+	CPI			RVAL, 0
 	BREQ		lcd_write_string__done
 	; Need to store Z in stack since it is used in lcd_write_char
 	PUSH		ZH
@@ -312,19 +312,20 @@ write_to_lcd:
 	RET												; (normal mode)
 
 ;==============================================================================
-; Clear screen. The display is filled with blanks
-;	uses register R19
+; Clear screen. The display is filled with 84 blank characters.
+; Uses registers:
+;	COUNTER		Counter from 84 (the number of characters the LCD can display)
 ;==============================================================================
 
 lcd_clear_display:
 	LCD_WRITE_CMD 0x80 ; Set position: col 0
 	LCD_WRITE_CMD 0x40 ; row 0
 
-	LDI			R19, 84
+	LDI			COUNTER, 84
 
 lcd_clear_display__loop:
 	LCD_WRITE_CHR ' '
-	DEC			R19
+	DEC			COUNTER
 	BRNE		lcd_clear_display__loop
 	
 	RET

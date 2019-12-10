@@ -8,7 +8,8 @@
 	.EQU		RESET = 0x0000			; reset vector
 	.EQU		PM_START = 0x0072		; start of program
 	.DEF		TEMP = R16				; Temp registry
-	.DEF		RVAL = R24				; Counter return value from reading keyboard
+	.DEF		COUNTER = R19			; Used as counter in loops
+	.DEF		RVAL = R24				; Used for different things, mainly as input and output tp subroutines
 
 ;==============================================================================
 ; Start of program

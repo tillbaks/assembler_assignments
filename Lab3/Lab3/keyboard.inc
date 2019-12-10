@@ -37,17 +37,14 @@ keys:
 
 ;==============================================================================
 ; Read keyboard
-; Returns the corresponding character for the pressed key. If no key is
-; pressed, then '\0' (null) is returned.
+; Returns the corresponding ascii character for the pressed key
+; If no key is pressed, then '\0' (null) is returned.
 ;
 ; Uses registers:
-;	R19			Counter and contains key when returning
-;
-; Important! A minimum delay of 2 NOP's is necessary after setting port,
-; before pin can be read.
+;	RVAL		Key returned from read_keyboard_num and then converted to ascii as return value to caller
+;	ZH:ZL		Pointer into keys remapping string
 ;==============================================================================
 read_keyboard:
-
 	RCALL		read_keyboard_num
 	LDI			ZH, HIGH(keys <<1)				; Initialize Z pointer
 	LDI			ZL, LOW(keys <<1)
@@ -65,9 +62,8 @@ read_keyboard:
 ; If no key is pressed, 16 is returned.
 ;
 ; Uses registers:
-;	RVAL		Counter from that is returned to callee
+;	RVAL		Delay and Counter for key that is returned to caller
 ;	TEMP		Temporary storage
-;	R24			Delay
 ;==============================================================================
 
 read_keyboard_num:
@@ -75,10 +71,10 @@ read_keyboard_num:
 ; This has to be done for each column to find the key that is pressed
 .MACRO CHECK_FOR_KEYPRESS
 	; Delay before being able to read pins
-	PUSH		R24
-	LDI			R24, 3
+	PUSH		RVAL
+	LDI			RVAL, 3
 	RCALL		delay_ms
-	POP			R24
+	POP			RVAL
 	; READ ROW 0
 	SBIC		PINF, 5
 	RJMP		END
@@ -97,7 +93,7 @@ read_keyboard_num:
 	INC			RVAL
 .ENDMACRO
 
-	; Initialize counter which will be used by the callee to know which button is pressed
+	; Initialize counter which will be used by the caller to know which button is pressed
 	LDI			RVAL, 0
 
 	; Check if a key in "COL 0" is pressed
