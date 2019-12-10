@@ -30,6 +30,7 @@ keys:
 ; Definitions of registers, etc. ("constants")
 ;==============================================================================
 	.EQU		NO_KEY = 0x10			; no key was pressed!
+	
     .EQU        ROLL_KEY = '2'
 	.EQU		STAT_KEY = '3'
 	.EQU		CLEAR_STAT_KEY = '8'

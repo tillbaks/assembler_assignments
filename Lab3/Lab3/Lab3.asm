@@ -77,38 +77,10 @@ init_main:
 					0, 0
 	RET
 ;==============================================================================
-; Writes welcome to the LCD
-; Uses registers:
-;	ZH:ZL		Pointer to current character in STR_1
-;	R24			Character as Input to lcd_write_char 
-;==============================================================================
-/*
-write_welcome:
-	; set D/C pin
-	SBI			PORTB, 4						
-	; Initialize Z-pointer
-	LDI			ZH, HIGH(STR_WELCOME<<1)
-	LDI			ZL, LOW(STR_WELCOME<<1)
-write_welcome__loop:
-	LPM			R24, Z+
-	; Check if at end of string
-	CPI			R24, 0
-	BREQ		write_welcome__done
-	; Need to store Z in stack since it is used in lcd_write_char
-	PUSH		ZH
-	PUSH		ZL
-	RCALL		lcd_write_char
-	POP			ZL
-	POP			ZH
-	RJMP		write_welcome__loop
-write_welcome__done:
-	RET
-*/
-;==============================================================================
 ; Main part of program
+;
 ; Uses registers:
-;	R16			Temporary storage from read_keyboard_num
-;	R17			Counter from read_keyboard_num
+;	RVAL		Return value from read_keyboard / Current key pressed (ascii)
 ;==============================================================================
 main:
 	RCALL		lcd_clear_display
@@ -119,10 +91,15 @@ main:
 main_loop:
 	RCALL		lcd_clear_display
 	PRINTSTRING	STR_INSTRUCTIONS
-main_loop__no_key: ; Wait for keypress to avoid printing instruction to lcd constantly
+
+; Wait for keypress to avoid printing instruction to lcd constantly
+main_loop__no_key:
 	RCALL		read_keyboard
 	CPI			RVAL, NO_KEY
 	BREQ		main_loop__no_key
+
+; Check if any keys that do something in the application are pressed
+; and call the corresponding subroutine for that key
 main_loop__check_roll:
 	CPI			RVAL, ROLL_KEY
 	BRNE		main_loop__check_stat
