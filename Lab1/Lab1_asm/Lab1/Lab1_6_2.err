@@ -1,0 +1,70 @@
+gavrasm Gerd's AVR assembler version 4.3 (C)2019 by DG4FAC
+----------------------------------------------------------
+Source file: Lab1_6_2.asm
+Hex file:    Lab1_6_2.hex
+Eeprom file: Lab1_6_2.eep
+Compiled:    25.11.2019, 16:48:03
+Pass:        1
+Error ==> 	CBI			PORTE,3
+[keyboard.inc,68] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBI			PORTG,5
+[keyboard.inc,69] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINF, 5
+[keyboard.inc,75] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINF, 4
+[keyboard.inc,79] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINE, 4
+[keyboard.inc,83] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINE, 5
+[keyboard.inc,87] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBI			PORTE,3
+[keyboard.inc,93] 021: Port value (-1) out of range (0..63)!
+Error ==> 	CBI			PORTG,5
+[keyboard.inc,94] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINF, 5
+[keyboard.inc,100] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINF, 4
+[keyboard.inc,104] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINE, 4
+[keyboard.inc,108] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINE, 5
+[keyboard.inc,112] 021: Port value (-1) out of range (0..63)!
+Error ==> 	CBI			PORTE,3
+[keyboard.inc,118] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINF, 5
+[keyboard.inc,128] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINF, 4
+[keyboard.inc,132] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINE, 4
+[keyboard.inc,136] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINE, 5
+[keyboard.inc,140] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINF, 5
+[keyboard.inc,155] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINF, 4
+[keyboard.inc,159] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINE, 4
+[keyboard.inc,163] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBIC			PINE, 5
+[keyboard.inc,167] 021: Port value (-1) out of range (0..63)!
+Error ==> 	OUT			SPL, TEMP			; at the end of RAM.
+[Lab1_6_2.asm,29] 021: Port value (-1) out of range (0..63)!
+Error ==> 	OUT			SPH, TEMP
+[Lab1_6_2.asm,31] 021: Port value (-1) out of range (0..63)!
+Error ==> 	OUT		      	DDRD, TEMP
+[Lab1_6_2.asm,41] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBI                     DDRE, 3
+[Lab1_6_2.asm,49] 021: Port value (-1) out of range (0..63)!
+Error ==> 	SBI                     DDRG, 5
+[Lab1_6_2.asm,50] 021: Port value (-1) out of range (0..63)!
+Error ==> 	CBI                     DDRF, 5
+[Lab1_6_2.asm,53] 021: Port value (-1) out of range (0..63)!
+Error ==> 	CBI                     DDRF, 4
+[Lab1_6_2.asm,54] 021: Port value (-1) out of range (0..63)!
+Error ==> 	CBI                     DDRE, 4
+[Lab1_6_2.asm,55] 021: Port value (-1) out of range (0..63)!
+Error ==> 	CBI                     DDRE, 5
+[Lab1_6_2.asm,56] 021: Port value (-1) out of range (0..63)!
+Error ==> 	OUT PORTD, COUNTER
+[Lab1_6_2.asm,70] 021: Port value (-1) out of range (0..63)!
+Compilation aborted, 31 errors!
