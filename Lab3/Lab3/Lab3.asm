@@ -9,7 +9,6 @@
 	.EQU		PM_START = 0x0072		; start of program
 	.DEF		TEMP = R16				; Temp registry
 	.DEF		RVAL = R24				; Counter return value from reading keyboard
-	.DEF		KEY = R22				; Currently pressed key
 
 ;==============================================================================
 ; Start of program
@@ -25,6 +24,7 @@
 	.INCLUDE	"dice.inc"
 	.INCLUDE	"stat_data.inc"
 	.INCLUDE	"stats.inc"
+	.INCLUDE	"monitor.inc"
 
 ;==============================================================================
 ; Basic initializations of stack pointer, etc.
@@ -34,19 +34,19 @@ init:
 	OUT			SPL, TEMP				; at the end of RAM.
 	LDI			TEMP, HIGH(RAMEND)
 	OUT			SPH, TEMP
+
 	RCALL		init_pins				; Initialize pins
+	RCALL		init_main				; Initialize main application data
 	RCALL		lcd_init				; Initialize LCD in lcd.inc
 	RCALL		init_stat				; Initialize Stats in stats.inc
-	RJMP		main					; Jump to main
+	RCALL		init_monitor			; Initialize Monitor in monitor.inc
+
+	RJMP		main					; Init done - start application
 
 ;==============================================================================
 ; Initialize I/O pins
 ;==============================================================================
 init_pins:
-	; DDRD are the output pins connected to the leds
-	LDI			TEMP, 0x0F
-	OUT			DDRD, TEMP
-
 	; Set output pins ; iBridge=>Arduino = P5=>PH4, P6=>PH3, P7=>PE3, P8=>PG5
 	; NOTE: Set bit 3 and 4 on DDRH to output ports / have to do it this way since "SBI DDRH,3" does not work
 	LDS			TEMP, DDRH
@@ -64,6 +64,17 @@ init_pins:
 	
 	RET
 
+init_main:
+	STR_WELCOME:
+	.DB				"WELCOME HUMAN!", 0, 0
+	STR_INSTRUCTIONS:
+	.DB				"PRESS:        ", \
+					"2 TO ROLL     ", \
+					"3 FOR STATS   ", \
+					"8 TO CLR STATS", \
+					"9 FOR MONITOR ", \
+					0, 0
+	RET
 ;==============================================================================
 ; Writes welcome to the LCD
 ; Uses registers:
@@ -98,29 +109,16 @@ write_welcome__done:
 ;	R16			Temporary storage from read_keyboard_num
 ;	R17			Counter from read_keyboard_num
 ;==============================================================================
-main:	
-
-	; MOMENT 1 TEST-PROGRAMM
-	/*
-	LDI			TEMP, 0x0F
-	OUT			PORTD, TEMP
-	RCALL		delay_1_s
-
-	LDI			TEMP, 0x00
-	OUT			PORTD, TEMP
-	RCALL		delay_1_s
-	*/
-
-
+main:
 	RCALL		lcd_clear_display
 	PRINTSTRING	STR_WELCOME
-
 	RCALL		delay_1_s
+
 
 main_loop:
 	RCALL		lcd_clear_display
-	PRINTSTRING	STR_PRESS2
-main_loop__no_key:
+	PRINTSTRING	STR_INSTRUCTIONS
+main_loop__no_key: ; Wait for keypress to avoid printing instruction to lcd constantly
 	RCALL		read_keyboard
 	CPI			RVAL, NO_KEY
 	BREQ		main_loop__no_key
@@ -141,90 +139,5 @@ main_loop__check_monitor:
 	BRNE		main_loop
 	RCALL		monitor
 
+
 	RJMP		main_loop
-
-
-
-
-
-monitor:
-	PRINTSTRING	STR_MONITOR
-	RCALL		delay_1_s
-	RET
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-;main_loop:
-	RCALL		lcd_clear_display
-	LCD_WRITE_CMD 0x80 ; Set position: col 0
-	LCD_WRITE_CMD 0x40 ; row 0
-	PRINTSTRING	STR_PRESS2
-	RCALL		read_keyboard
-	CPI			RVAL, ROLL_KEY
-	BRNE		main_loop
-	LCD_WRITE_CMD 0x80 ; Set position: col 0
-	LCD_WRITE_CMD 0x40 ; row 0
-	PRINTSTRING	STR_ROLLING
-	RCALL		roll_dice
-	LDI			R24, 48
-	ADD			R24, TEMP
-	PUSH R24
-	LCD_WRITE_CMD 0x80 ; Set position: col 0
-	LCD_WRITE_CMD 0x40 ; row 0
-	PRINTSTRING	STR_VALUE
-	POP R24
-	SBI			PORTB, 4						; set D/C pin
-	RCALL		lcd_write_char					; write char to the LCD
-	RCALL		store_stat
-	RCALL		delay_1_s
-	RCALL		main_loop
-
-
-	; Wait for keypress
-	RCALL		read_keyboard_num
-	CPI			RVAL, NO_KEY
-	BREQ		main_loop
-
-	MOV			KEY, RVAL					; Save RVAL in KEY to compare in key release loop
-
-	; Calculate ascii value from RVAL
-	CPI			RVAL, 10
-	BRLT		main_loop__less_then_10
-	SUBI		RVAL, -7						; Add 7 if RVAL > 9 so 10 becomes ascii A and so on
-main_loop__less_then_10:
-	SUBI		RVAL, -48
-
-	; Write char to LCD
-	SBI			PORTB, 4						; set D/C pin
-	MOV			R24, RVAL
-	RCALL		lcd_write_char					; write char to the LCD
-	
-	; Wait for key release
-main_loop__wait_release:
-	RCALL		read_keyboard_num
-	CP			RVAL, KEY
-	BREQ		main_loop__wait_release
-
-	; Do it again
-	RJMP main_loop
-	*/

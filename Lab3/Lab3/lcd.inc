@@ -100,21 +100,6 @@ chars:
 	.EQU			BIT6_HIGH	 =	0x40
 	.EQU			BIT6_LOW	 =	0xBF
 
-	STR_WELCOME:
-	.DB				"WELCOME!", 0, 0
-	STR_PRESS2:
-	.DB				"PRSS 2 TO ROLL", 0, 0
-	STR_ROLLING:
-	.DB				"ROLLING..", 0
-	STR_STATS:
-	.DB				"STATS..", 0
-	STR_CLEAR:
-	.DB				"CLEAR..", 0
-	STR_MONITOR:
-	.DB				"MONITOR..", 0
-	STR_VALUE:
-	.DB				"VALUE: ", 0
-
 ;==============================================================================
 ; Macro for writing a command to the LCD.
 ; Uses registers:

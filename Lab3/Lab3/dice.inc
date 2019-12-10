@@ -4,6 +4,10 @@
 ; Created: 12/6/2019 12:45:52 PM
 ; Created by Johannes Blüml, for the course DA346A at Malmo University.
 ;
+	STR_ROLLING:
+	.DB				"ROLLING..", 0
+	STR_VALUE:
+	.DB				"VALUE: ", 0
 
 roll:
 	RCALL		lcd_clear_display
