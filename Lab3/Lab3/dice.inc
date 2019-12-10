@@ -30,12 +30,11 @@ roll:
     RCALL		store_stat
     POP         RVAL
     ; Write dice value to display
-	SUBI		RVAL, -48 ; Convert number to ascii value
+	SUBI		RVAL, -48                 ; Convert number to ascii value
 	PUSH        RVAL
 	RCALL		lcd_clear_display
 	PRINTSTRING	STR_VALUE
 	POP         RVAL
-	SBI			PORTB, 4 ; set D/C pin
 	RCALL		lcd_write_char
 	; Wait a bit so value can be read by humans
 	RCALL		delay_1_s
@@ -45,7 +44,6 @@ roll:
 ;
 ; Uses registers:
 ;	RVAL		Dice value returned from roll_dice
-;   COUNTER     Used to count from 6 to 1
 ;==============================================================================
 roll_dice:
     ; Start from 6
@@ -60,6 +58,7 @@ roll_dice__next:
     BRNE        roll_dice__next         ; RVAL is >0 = loop
     RJMP        roll_dice               ; RVAL is 0 = restart from 6
 roll_dice__done:
+    ; COUNTER contains the dice value so it is copied to the return value (RVAL)
     MOV         RVAL, COUNTER
     RET
 

@@ -4,11 +4,11 @@
  * This file contains delay routines.
  *
  * Created: 2019-11-26
- * Created by Johannes Blüml, for the course DA346A at Malmo University.
+ * Created by Johannes Blï¿½ml, for the course DA346A at Malmo University.
  */
 
 ;==============================================================================
-; Delay of 1 µs (including RCALL)
+; Delay of 1 ï¿½s (including RCALL)
 ;==============================================================================
 delay_1_micros:
 	NOP
@@ -22,13 +22,13 @@ delay_1_micros:
 	RET
 
 ;==============================================================================
-; Delay of X µs
+; Delay of X ï¿½s
 ;	LDI + RCALL = 4 cycles
 ; Uses registers:
-;	R24				Input parameter data (X µs) must be 2 or more for exact delay
+;	RVAL				Input parameter data (X ï¿½s) must be 2 or more for exact delay
 ;==============================================================================
 delay_micros: ; 4 cycle (LDI+RCALL)
-	DEC			R24	; 1 cycle
+	DEC			RVAL	; 1 cycle
 
 	; Wait 16 cycle per iteration, 15 cycle last iteration
 delay_micros__wait:
@@ -45,7 +45,7 @@ delay_micros__wait:
 	NOP
 	NOP
 	NOP
-	DEC			R24
+	DEC			RVAL
 	BRNE		delay_micros__wait
 
 	; NOPS - 8 cycles to fill out remaining microsec
@@ -67,47 +67,45 @@ delay_micros__wait:
 ; 12 extra cycles so less than 1us error
 ;
 ; Uses registers:
-;	R18				Copy of parameter data (X ms)
-;	R24				Input parameter data (X ms) and
+;	RVAL				Input parameter data (X ms) and
 ;					also input to 'delay_micros'.
 ;==============================================================================
 delay_ms: ; 4 cycle
-
-	MOV			R18, R24 ; 1 cycle
+	PUSH		COUNTER
+	MOV			COUNTER, RVAL ; 1 cycle
 
 delay_ms__wait:
 	; Calls delay_micros 4 times with 250 microsecs
 	; (250 * 4) us = 1ms
-	; then loop amount of times in specified in R24 when called
-	LDI			R24, 250
+	; then loop amount of times in specified in RVAL when called
+	LDI			RVAL, 250
 	RCALL		delay_micros
-	LDI			R24, 250
+	LDI			RVAL, 250
 	RCALL		delay_micros
-	LDI			R24, 250
+	LDI			RVAL, 250
 	RCALL		delay_micros
-	LDI			R24, 250
+	LDI			RVAL, 250
 	RCALL		delay_micros
 
-	DEC			R18	; 1 cycle
+	DEC			COUNTER	; 1 cycle
 	BRNE		delay_ms__wait ; 2 cycle
 
+	POP			COUNTER
 	RET ; 4 cycle
 ;==============================================================================
 ; Delay of 1 second
 ;	LDI + RCALL = 4 cycles
 ; Uses registers:
-;	R18				Copy of parameter data (X ms)
-;	R24				Input parameter data (X ms) and
-;					also input to 'delay_micros'.
+;	RVAL				Input parameter data (X ms) and also input to 'delay_micros'.
 ;==============================================================================
 delay_1_s: ; 4 cycle
 	; Calls delay_ms 4 times with 250ms = 1 second
-	LDI			R24, 250
+	LDI			RVAL, 250
 	RCALL		delay_ms
-	LDI			R24, 250
+	LDI			RVAL, 250
 	RCALL		delay_ms
-	LDI			R24, 250
+	LDI			RVAL, 250
 	RCALL		delay_ms
-	LDI			R24, 250
+	LDI			RVAL, 250
 	RCALL		delay_ms
 	RET
